@@ -1,0 +1,33 @@
+body {
+    margin:0;
+    padding:0;
+}
+
+.point {
+    width:15px;
+    height:15px;
+    border-radius:50%;
+    background-color:red;
+    position:absolute;
+    left:0px;
+    top:0px;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+}
+
+.line {
+    border:solid 1px black;
+    position:absolute;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+}
+
+#add {
+    border-radius:50% 0% 0% 50%;
+    margin:0;
+}
+
+#remove {
+    border-radius:0% 50% 50% 0%;
+    margin:0;
+}
