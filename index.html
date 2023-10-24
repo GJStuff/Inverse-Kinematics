@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <input id="length" type="range" min="1" max="100" step="1" value="50">
+        
+        <button id="add">+</button>
+        <button id="remove">-</button>
+
+        <p id="length-box">length: 50</p>
+        
+        
+        <div id="line-box"></div>
+        
+        <div class="point"></div>
+        <div class="point"></div>
+        <div class="point"></div>
+        <div class="point"></div>
+        <div class="point"></div>
+        
+        <script>
+            var lengthSlider = document.getElementById('length');
+            var points = document.getElementsByClassName("point");
+            var lines = document.getElementsByClassName("line");
+            var length = 50;
+            var originX = 200;
+            var originY = 150;
+            var pointX = window.innerWidth/2;
+            var pointY = window.innerHeight/2;
+            
+            document.getElementById('add').addEventListener('mousedown', addPoint);
+            document.getElementById('remove').addEventListener('mousedown', removePoint);
+            
+            function addPoint(e) {
+                var point = document.createElement("div");
+                point.setAttribute("class", "point");
+                document.body.appendChild(point);
+                    
+                var line = document.createElement("div");
+                line.setAttribute("class", "line");
+                document.getElementById("line-box").appendChild(line);
+                
+                move(e);
+            }
+            
+            function removePoint(e) {
+                lines[lines.length-1].remove();
+                points[points.length-1].remove();
+                
+                move(e);
+            }
+            
+            for(var i = 0; i < points.length; i++) {
+                points[i].style.left = pointX+i*length+"px";
+                points[i].style.top = pointY+"px";
+                
+                if(i != 0) {
+                    var line = document.createElement("div");
+                    line.setAttribute("class", "line");
+                    document.getElementById("line-box").appendChild(line);
+                }
+            }
+            
+            lengthSlider.oninput = function() {
+                length = this.value;
+                document.getElementById('length-box').innerHTML = "length: " + this.value;
+            }
+            
+            document.addEventListener("mousemove", move);
+            
+            function move(e) {
+                originX = e.clientX;
+                originY = e.clientY;
+                
+                for(var i = 0; i < points.length; i++) {
+                    moveToOrigin();
+                    moveToPoint();
+                }
+                moveLines();
+            }
+            
+            function moveLines() {
+                for(var i = 0; i < lines.length; i++) {
+                    lines[i].style.left = (parseInt(points[i].style.left)+parseInt(points[i+1].style.left))/2+"px";
+                    lines[i].style.top = (parseInt(points[i].style.top)+parseInt(points[i+1].style.top))/2-length/2+"px";
+                    lines[i].style.height = length+"px";
+                    
+                    var slope = ((parseInt(points[i+1].style.top)-parseInt(points[i].style.top))/(parseInt(points[i+1].style.left)-parseInt(points[i].style.left)));
+                    var rotation = Math.atan(slope);
+                    lines[i].style.transform = "rotate(" + ((rotation * 180 / Math.PI)+90) + "deg)";
+                }
+            }
+            
+            function moveToOrigin() {
+                for(var i = 0; i < points.length; i++) {
+                    if(i == 0) {
+                        points[i].style.left = originX+"px";
+                        points[i].style.top = originY+"px";
+                    } else {
+                        var pointLeft = parseInt(points[i].style.left);
+                        var pointTop = parseInt(points[i].style.top);
+                        
+                        var originLeft = parseInt(points[i-1].style.left);
+                        var originTop = parseInt(points[i-1].style.top);
+                        
+                        var distance = Math.sqrt((originLeft - pointLeft)*(originLeft - pointLeft) + (originTop - pointTop)*(originTop - pointTop));
+                        
+                        var x = originLeft - ((originLeft - pointLeft)/distance) * length;
+                        var y = originTop - ((originTop - pointTop)/distance) * length;
+                        points[i].style.left = x+"px";
+                        points[i].style.top = y+"px";
+                    }
+                }
+            }
+            
+            function moveToPoint() {
+                for(var i = points.length-1; i > -1; i--) {
+                    if(i == points.length-1) {
+                        points[i].style.left = pointX+"px";
+                        points[i].style.top = pointY+"px";
+                    } else {
+                        var pointLeft = parseInt(points[i].style.left);
+                        var pointTop = parseInt(points[i].style.top);
+                        
+                        var originLeft = parseInt(points[i+1].style.left);
+                        var originTop = parseInt(points[i+1].style.top);
+                        
+                        var distance = Math.sqrt((originLeft - pointLeft)*(originLeft - pointLeft) + (originTop - pointTop)*(originTop - pointTop));
+                        
+                        var x = originLeft - ((originLeft - pointLeft)/distance) * length;
+                        var y = originTop - ((originTop - pointTop)/distance) * length;
+                        points[i].style.left = x+"px";
+                        points[i].style.top = y+"px";
+                    }
+                }
+            }
+        </script>
+    </body>
+</html>
